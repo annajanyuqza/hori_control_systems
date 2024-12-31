@@ -1,4 +1,4 @@
-# This is a Experimental driver for the Hori Truck Control System on Linux.
+# This is a Experimental Linux Kernel driver for the Hori Truck Control System.
 
 NO Brake and Force Feedback at the moment.
 
