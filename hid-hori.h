@@ -2,7 +2,7 @@
 #ifndef __HID_HORI_H
 #define __HID_HORI_H
 
-struct hr_drv_data {
+struct hori_drv_data {
 	unsigned long quirks;
 	void *device_props;	/* Device specific properties */
 };
