@@ -386,7 +386,9 @@ static struct hid_driver hori_multisticks_driver = {
 	.id_table = hori_multisticks_devices,
         .report_fixup = hori_multisticks_report_fixup,
 	.probe = hori_multisticks_probe,
-	.input_mapping = hori_multisticks_input_mapping,
+        .input_mapping = hori_multisticks_input_mapping,
+        .multisticks_input_configured = hori_multisticks_input_configured,
+        .multisticks_raw_event = hori_multisticks_raw_event,
 };
 module_hid_driver(hori_multisticks_driver);
 
