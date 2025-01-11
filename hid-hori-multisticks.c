@@ -26,69 +26,10 @@
 #include "hid-ids.h"
 
 #define HORI_TSC_SHIFTER_RDESC_ORIG_SIZE	83
-#define HORI_INPUT_REPORT_USB_SIZE		64
-#define HID_IN_PACKET 16
 
 #define BTN_BASE7		0x12c
 #define BTN_BASE8		0x12d
 #define BTN_BASE9          0x12e
-
-#define HORI_TCS_POLL		0x00
-
-#define button1     BTN_TRIGGER
-#define button2     BTN_THUMB
-#define button3     BTN_THUMB2
-#define button4     BTN_TOP
-#define button5     BTN_TOP2
-#define button6     BTN_PINKIE
-#define button7     BTN_BASE
-#define button8     BTN_BASE2
-#define button9    BTN_BASE3
-#define button10     BTN_BASE4
-#define button11     BTN_BASE5
-#define button12     BTN_BASE6
-#define button13     BTN_BASE7
-#define button14     BTN_BASE8
-#define button15     BTN_BASE9
-#define button16     BTN_DEAD
-#define button17     BTN_TRIGGER_HAPPY1
-#define button18     BTN_TRIGGER_HAPPY2
-#define button19     BTN_TRIGGER_HAPPY3
-#define button20     BTN_TRIGGER_HAPPY4
-#define button21     BTN_TRIGGER_HAPPY5
-#define button22     BTN_TRIGGER_HAPPY6
-#define button23     BTN_TRIGGER_HAPPY7
-#define button24     BTN_TRIGGER_HAPPY8
-#define button25     BTN_TRIGGER_HAPPY9
-#define button26     BTN_TRIGGER_HAPPY10
-#define button27     BTN_TRIGGER_HAPPY11
-#define button28     BTN_TRIGGER_HAPPY12
-#define button29     BTN_TRIGGER_HAPPY13
-#define button30     BTN_TRIGGER_HAPPY14
-#define button31     BTN_TRIGGER_HAPPY15
-#define button32     BTN_TRIGGER_HAPPY16
-#define button33     BTN_TRIGGER_HAPPY17
-#define button34     BTN_TRIGGER_HAPPY18
-#define button35     BTN_TRIGGER_HAPPY19
-#define button36     BTN_TRIGGER_HAPPY20
-#define button37     BTN_TRIGGER_HAPPY21
-#define button38     BTN_TRIGGER_HAPPY22
-#define button39     BTN_TRIGGER_HAPPY23
-#define button40     BTN_TRIGGER_HAPPY24
-#define button41     BTN_TRIGGER_HAPPY25
-#define button42     BTN_TRIGGER_HAPPY26
-#define button43     BTN_TRIGGER_HAPPY27
-#define button44     BTN_TRIGGER_HAPPY28
-#define button45     BTN_TRIGGER_HAPPY29
-#define button46     BTN_TRIGGER_HAPPY30
-#define button47     BTN_TRIGGER_HAPPY31
-#define button48     BTN_TRIGGER_HAPPY32
-#define button49     BTN_TRIGGER_HAPPY33
-#define button50     BTN_TRIGGER_HAPPY34
-#define button51     BTN_TRIGGER_HAPPY35
-#define button52     BTN_TRIGGER_HAPPY36
-#define button53     BTN_TRIGGER_HAPPY37
-#define button54     BTN_TRIGGER_HAPPY38
 
 static const __u8 tcs_shifter_rdesc_fixed[] = {
 0x05, 0x01,					 // Usage Page (Generic Desktop)        			0
@@ -136,7 +77,6 @@ static const __u8 tcs_shifter_rdesc_fixed[] = {
 static const __u8 *hori_multisticks_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 				     unsigned int *rsize)
 {
-	struct hori_multisticks_drv_data *drv_data = hid_get_drvdata(hdev);
 
 	switch (hdev->product) {
 
@@ -169,17 +109,12 @@ static int hori_multisticks_input_mapping(struct hid_device *dev,
     return -1;
 }
 
-#define asus_map_key_clear(c)	hid_map_usage_clear(hi, usage, bit, \
-						    max, EV_KEY, (c))
 static int hori_multisticks_input_configured(struct hid_device *hdev,
                                 struct hid_input *input)
 {
     struct input_dev * input_dev = input->input;
-
     hid_set_drvdata(hdev, input_dev);
-    
-    int max_stick;
-    
+
 	switch (hdev->product) {
 ;
 	case USB_DEVICE_ID_HORI_TRUCK_CONTROL_SYSTEM_SHIFTER:
@@ -230,19 +165,7 @@ static int hori_multisticks_input_configured(struct hid_device *hdev,
                 set_bit(BTN_TRIGGER_HAPPY25, input_dev->keybit);
                 set_bit(BTN_TRIGGER_HAPPY26, input_dev->keybit);
                 set_bit(BTN_TRIGGER_HAPPY27, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY28, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY29, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY30, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY31, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY32, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY33, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY34, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY35, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY36, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY37, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY38, input_dev->keybit);
-    
-                
+                    
                 input_set_capability(input_dev, EV_MSC, MSC_SCAN);
                 
                 input_set_capability(input_dev, EV_KEY, BTN_TRIGGER);
@@ -287,74 +210,65 @@ static int hori_multisticks_input_configured(struct hid_device *hdev,
                 input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY24);
                 input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY25);
                 input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY26);
-		break;;
+                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY27);
+		break;
         }
     return 0;
 }
 
-static int hori_multisticks_raw_event(struct hid_device *hdev, struct hid_report *report, u8 *data, int len)
+static int hori_multisticks_raw_event(struct hid_device *hdev, struct hid_report *report, u8 *data, int ret)
 {
     struct input_dev *input_dev = hid_get_drvdata(hdev);
-    uint16_t range;
-	int dev_max_range, ret, count;
-
-	struct hori_multisticks_tcs *hori_multisticks_tcs = hid_get_drvdata(hdev);
-
-	if(range < 270)
-		range = 270;
-	else if (range > dev_max_range)
-		range = dev_max_range;
-
-	range = DIV_ROUND_CLOSEST((range * 0xffff), 1800);
 
 	switch (hdev->product) {
 
             case USB_DEVICE_ID_HORI_TRUCK_CONTROL_SYSTEM_SHIFTER:
-                    input_report_key(input_dev, EV_MSC, MSC_SCAN);
+                input_report_key(input_dev, EV_MSC, MSC_SCAN);
                 
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER, data[1]);
-                    input_event(input_dev, EV_KEY, BTN_THUMB, data[2] );
-                    input_event(input_dev, EV_KEY, BTN_THUMB2, data[17]);
-                    input_event(input_dev, EV_KEY, BTN_TOP, data[25]);
-                    input_event(input_dev, EV_KEY, BTN_TOP2, data[33]);
-                    input_event(input_dev, EV_KEY, BTN_PINKIE, data[6]);
-                    input_event(input_dev, EV_KEY, BTN_BASE, data[7]);
-                    input_event(input_dev, EV_KEY, BTN_BASE2, data[8]);
-                    input_event(input_dev, EV_KEY, BTN_BASE3, data[9]);
-                    input_event(input_dev, EV_KEY, BTN_BASE4, data[10]);
-                    input_event(input_dev, EV_KEY, BTN_BASE5, data[2] >> 4);
-                    input_event(input_dev, EV_KEY, BTN_BASE6, data[12] >> 16);
-                    input_event(input_dev, EV_KEY, BTN_BASE7, data[13] << 2);
-                    input_event(input_dev, EV_KEY, BTN_BASE8, data[14]);
-                    input_event(input_dev, EV_KEY, BTN_BASE9, data[15]);
-                    input_event(input_dev, EV_KEY, BTN_DEAD, data[16]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY1, data[3]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY2, data[18]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY3, data[19]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY4, data[20]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY5, data[21]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY6, data[22]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY7, data[23]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY8, data[24]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY9, data[4]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY10, data[26]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY11, data[27]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY12, data[28]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY13, data[29]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY14, data[30]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY15, data[31]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY16, data[32]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY17, data[5]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY18, data[34]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY19, data[34]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY20, data[36]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY21, data[37]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY22, data[38]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY23, data[39]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY24, data[40]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY25, data[6]);
-                    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY26, data[42]);
-                break;;
+                input_event(input_dev, EV_KEY, BTN_TRIGGER, data[1] &1 );                               // 1
+                input_event(input_dev, EV_KEY, BTN_THUMB, data[1] >> 1 &1);                                    // 2
+                input_event(input_dev, EV_KEY, BTN_THUMB2, data[1] >> 2 &1);                                 // 3
+                input_event(input_dev, EV_KEY, BTN_TOP, data[1] >> 3 &1);                                          // 4
+                input_event(input_dev, EV_KEY, BTN_TOP2, data[1] >> 4&1);                                                 // 5
+                input_event(input_dev, EV_KEY, BTN_PINKIE, data[1] >> 5 &1);                                     // 6
+                input_event(input_dev, EV_KEY, BTN_BASE, data[1] >> 6 &1);                                       // 7
+                input_event(input_dev, EV_KEY, BTN_BASE2, data[1] >> 7 &1);                                     // 8
+                input_event(input_dev, EV_KEY, BTN_BASE3, data[2] &1);                                     // 9
+                input_event(input_dev, EV_KEY, BTN_BASE4, data[2] >> 1 &1);                                     // 10
+                input_event(input_dev, EV_KEY, BTN_BASE5, data[2] >> 2 &1);                                     // 11
+                input_event(input_dev, EV_KEY, BTN_BASE6, data[2] >> 3 &1);                                     // 12
+                input_event(input_dev, EV_KEY, BTN_BASE7, data[2] >> 4 &1);                                              // 13
+                input_event(input_dev, EV_KEY, BTN_BASE8, data[2] >> 5 &1);                                     // 14
+                input_event(input_dev, EV_KEY, BTN_BASE9, data[2] >> 6 &1);                                     // 15
+                input_event(input_dev, EV_KEY, BTN_DEAD, data[2] >> 7 &1);                                       // 16
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY1, data[3] &1);               // 17
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY2, data[3] >> 1 &1);               // 18
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY3, data[3] >> 2 &1);               // 19
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY4, data[3] >> 3 &1);               // 20
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY5, data[3] >> 4&1);                              // 21
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY6, data[3] >> 5 &1);                // 22
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY7, data[3] >> 6 &1);               // 23
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY8, data[3] >> 7 &1);                // 24
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY9, data[4] &1);                // 25
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY10, data[4] >> 1 &1);                   // 26
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY11, data[4] >> 2 &1);                   // 27
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY12, data[4] >> 3 &1);                     // 28
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY13, data[4] >> 4 &1);                               // 29
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY14, data[4] >> 5  &1);                     // 30
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY15, data[4] >> 6 &1);                       // 31
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY16, data[4] >> 7  &1);                     // 32
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY17, data[5] &1);                      // 33
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY18, data[5] >> 1  &1);                     // 34
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY19, data[5] >> 2  &1);                     // 35
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY20, data[5] >> 3  &1);                     // 36
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY21, data[5] >> 4 &1);                               // 37
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY22, data[5] >> 5 &1);                      // 38
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY23, data[5] >> 6 &1);                      // 39
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY24, data[5] >> 7 &1);                      // 40
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY25, data[6]  &1);                     // 41
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY26, data[6] >> 1  &1);                    // 42
+                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY27, data[6] >> 2  &1);                    // 43
+                break;
         }
         
    /*     input_sync(input_dev); */
