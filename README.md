@@ -7,6 +7,8 @@ Button 5 can't use as return or left mouse button, because the button is not map
 The steering wheel behaves the same as under Windows. The left analog stick can now be used as a mouse.
 The dead zone has also been resolved.
 
+The shifter is full working now, but it's displayed twice.
+
 This kernel driver is early alpha.
 
 **I cannot be held responsible for any damage to the device. The use of this driver is at your own risk**
