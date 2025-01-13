@@ -26,28 +26,22 @@
 #include "hid-hori.h"
 #include "hid-ids.h"
 
-#define HORI_BAD_RELATIVE_KEYS	0x002
-#define HORI_DUPLICATE_USAGES	0x004
 #define HORI_TSC_WHEEL_RDESC_ORIG_SIZE	155
 #define HORI_BUTTONS0_HAT_SWITCH	GENMASK(3, 0)
-#define HORI_INPUT_REPORT_USB_SIZE		64
-#define HID_IN_PACKET 16
 
 #define BTN_BASE7		0x12c
 #define BTN_BASE8		0x12d
 #define BTN_BASE9          0x12e
 #define ABS_CLUTCH      ABS_RZ
 
-#define HORI_TCS_POLL		0x00
-
 /* Fixed report descriptors for HORI FFB Truck Control Systems
  * wheel controllers
  *
  * The original descriptors hide the separate throttle and brake axes in
  * a custom vendor usage page, providing only a combined value as
- * GenericDesktop.Y.
- * These descriptors remove the combined Y axis and instead report
- * separate throttle (Y) and brake (RZ).
+ * GenericDesktop.THROTTLE.
+ * These descriptors remove the combined THROTTLE axis and instead report
+ * separate throttle (GAS) and brake (BRAKE).
  */
 static const __u8 tcs_wheel_rdesc_fixed[] = {
 0x05, 0x01,                    		// Usage Page (Generic Desktop)        			0
@@ -124,11 +118,6 @@ static const __u8 tcs_wheel_rdesc_fixed[] = {
 0xc0,                          			// End Collection                      					154
 };
 
-struct hori_priv {
-	u8 slider;
-	bool alternate;
-};
-
 static const __u8 *hori_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 				     unsigned int *rsize)
 {
@@ -151,36 +140,134 @@ static const __u8 *hori_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 
 }
 
-static int hori_input_mapping(struct hid_device *dev,
-                             struct hid_input *input,
-                             struct hid_field *field,
-                             struct hid_usage *usage,
-                             unsigned long **bit,
-                             int *max)
+static void _parse_tcs_axis_report(struct input_dev *input_dev, u8 *data)
 {
-    /*
-     * We are reporting the events in x52_raw_event.
-     * Skip the hid-input processing.
-     */
-    return -1;
+    int hdev;
+    
+    static const s32 hat_to_axis[16][2] = {
+        {0, 0},
+        {0, -1},
+        {1, -1},
+        {1, 0},
+        {1, 1},
+        {0, 1},
+        {-1, 1},
+        {-1, 0},
+        {-1, -1},
+    };
+
+    u8 hat= (data[1] >> 1) & 0x0f ;
+    
+    input_report_abs(input_dev, ABS_X, data[14] << 8);
+    input_report_abs(input_dev, ABS_Y, data[12] << 8);
+    input_report_abs(input_dev, ABS_WHEEL, data[10]  << 8);                
+    input_report_abs(input_dev, ABS_RX, data[16] << 8);
+    input_report_abs(input_dev, ABS_RY, data[18] << 8);
+    input_report_abs(input_dev, ABS_CLUTCH, data[20] << 8);
+    input_report_abs(input_dev, ABS_GAS, data[22] << 8);                
+    input_report_abs(input_dev, ABS_BRAKE, data[24]  << 8);
+                
+    /* Hat is always the upper nibble of the penultimate byte of the report */
+    input_report_abs(input_dev, ABS_HAT0X, hat_to_axis[hat][6]);
+    input_report_abs(input_dev, ABS_HAT0Y, hat_to_axis[hat][0]);
+ 
+    input_report_abs(input_dev, ABS_MISC, data[26]  << 8);
+}
+
+static void _parse_tcs_button_report(struct input_dev *input_dev, u8 *data)
+{
+    input_report_key(input_dev, EV_MSC, MSC_SCAN);
+
+    input_event(input_dev, EV_KEY, BTN_TRIGGER, data[1] >> 4 &1 );                                     // 1
+    input_event(input_dev, EV_KEY, BTN_THUMB, data[1] >> 5 &1);                                         // 2
+    input_event(input_dev, EV_KEY, BTN_THUMB2, data[1] >> 6 &1);                                       // 3
+    input_event(input_dev, EV_KEY, BTN_TOP, data[1] >> 7 &1);                                                // 4
+    input_event(input_dev, EV_KEY, BTN_TOP2, data[2] &1);                                                       // 5
+    input_event(input_dev, EV_KEY, BTN_PINKIE, data[2] >> 1 &1);                                            // 6
+    input_event(input_dev, EV_KEY, BTN_BASE, data[2] >> 2 &1);                                              // 7
+    input_event(input_dev, EV_KEY, BTN_BASE2, data[2] >> 3 &1);                                            // 8
+    input_event(input_dev, EV_KEY, BTN_BASE3, data[2] >> 4 &1);                                            // 9
+    input_event(input_dev, EV_KEY, BTN_BASE4, data[2] >> 5 &1);                                            // 10
+    input_event(input_dev, EV_KEY, BTN_BASE5, data[2] >> 6 &1);                                            // 11
+    input_event(input_dev, EV_KEY, BTN_BASE6, data[2] >> 7 &1);                                            // 12
+    input_event(input_dev, EV_KEY, BTN_BASE7, data[3] &1);                                                     // 13
+    input_event(input_dev, EV_KEY, BTN_BASE8, data[3] >> 1 &1);                                            // 14
+    input_event(input_dev, EV_KEY, BTN_BASE9, data[3] >> 2 &1);                                            // 15
+    input_event(input_dev, EV_KEY, BTN_DEAD, data[3] >> 3 &1);                                              // 16
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY1, data[3] >> 4 &1);                     // 17
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY2, data[3] >> 5 &1);                     // 18
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY3, data[3] >> 6 &1);                     // 19
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY4, data[3] >> 7 &1);                     // 20
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY5, data[4] &1);                              // 21
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY6, data[4] >> 1 &1);                     // 22
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY7, data[4] >> 2 &1);                     // 23
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY8, data[4] >> 3 &1);                     // 24
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY9, data[4] >> 4 &1);                     // 25
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY10, data[4] >> 5 &1);                   // 26
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY11, data[4] >> 6 &1);                   // 27
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY12, data[4] >> 7 &1);                   // 28
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY13, data[5] &1);                            // 29
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY14, data[5] >> 1  &1);                  // 30
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY15, data[5] >> 2 &1);                   // 31
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY16, data[5] >> 3  &1);                  // 32
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY17, data[5] >> 4 &1);                   // 33
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY18, data[5] >> 5  &1);                  // 34
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY19, data[5] >> 6  &1);                  // 35
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY20, data[5] >> 7  &1);                  // 36
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY21, data[6] &1);                            // 37
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY22, data[6] >> 1 &1);                   // 38
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY23, data[6] >> 2 &1);                   // 39
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY24, data[6] >> 3 &1);                   // 40
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY25, data[6] >> 4 &1);                   // 41
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY26, data[6] >> 5  &1);                  // 42
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY27, data[6] >> 6  &1);                  // 43
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY28, data[6] >> 7 &1);                   // 44
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY29, data[7] &1);                            // 45
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY30, data[7] >> 1 &1);                   // 46
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY31, data[7] >> 2 &1);                   // 47
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY32, data[7] >> 3 &1);                   // 48
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY33, data[7] >> 4 &1);                   // 49
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY34, data[7] >> 5 &1);                   // 50
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY35, data[7] >> 6 &1);                   // 51
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY36, data[7] >> 7 &1);                   // 52
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY37, data[8] &1);                            // 53
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY38, data[8] >> 1 &1);                   // 54
+}
+
+static int  hori_raw_event(struct hid_device *hdev,
+                         struct hid_report *report, u8 *data, int len)
+{
+    struct input_dev *input_dev = hid_get_drvdata(hdev);
+
+    switch (hdev->product) {
+
+	/* Several wheels report as this id when operating in emulation mode. */
+	case USB_DEVICE_ID_HORI_TRUCK_CONTROL_SYSTEM_WHEEL:
+                _parse_tcs_axis_report(input_dev, data);
+                _parse_tcs_button_report(input_dev, data);
+                break;
+        }
+    input_sync(input_dev);
+    return 0;
 }
 
 static int hori_input_configured(struct hid_device *hdev,
                                 struct hid_input *input)
 {
-    struct input_dev * input_dev = input->input;
-
+    struct input_dev *input_dev = input->input;
+    int i;
+    
     hid_set_drvdata(hdev, input_dev);
+
+    set_bit(MSC_SCAN, input_dev->mscbit);
+    set_bit(EV_KEY, input_dev->evbit);
+    set_bit(EV_ABS, input_dev->evbit);
     
 	switch (hdev->product) {
 
 	/* Several wheels report as this id when operating in emulation mode. */
 	case USB_DEVICE_ID_HORI_TRUCK_CONTROL_SYSTEM_WHEEL:
-                set_bit(EV_ABS, input_dev->evbit);
-		set_bit(EV_MSC, input_dev->evbit);
-		set_bit(MSC_SCAN, input_dev->mscbit);
-                set_bit(EV_KEY, input_dev->evbit);
-                    
+
                 set_bit(BTN_TRIGGER, input_dev->keybit);
                 set_bit(BTN_THUMB, input_dev->keybit);
                 set_bit(BTN_THUMB2, input_dev->keybit);
@@ -198,45 +285,10 @@ static int hori_input_configured(struct hid_device *hdev,
                 set_bit(BTN_BASE9, input_dev->keybit);
                 set_bit(BTN_DEAD, input_dev->keybit);
 
-                set_bit(BTN_TRIGGER_HAPPY1, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY2, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY3, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY4, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY5, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY6, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY7, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY8, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY9, input_dev->keybit);;
-                set_bit(BTN_TRIGGER_HAPPY10, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY11, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY12, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY13, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY14, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY15, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY16, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY17, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY18, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY19, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY20, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY21, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY22, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY23, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY24, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY25, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY26, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY27, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY28, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY29, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY30, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY31, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY32, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY33, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY34, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY35, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY36, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY37, input_dev->keybit);
-                set_bit(BTN_TRIGGER_HAPPY38, input_dev->keybit);
-                
+                for (i = 0x10; i < 54; i++) {
+                        set_bit(BTN_TRIGGER_HAPPY + i - 0x10, input_dev->keybit);
+                }
+
                 set_bit(ABS_X, input_dev->absbit);
                 set_bit(ABS_Y, input_dev->absbit);
                 set_bit(ABS_WHEEL, input_dev->absbit);
@@ -249,193 +301,34 @@ static int hori_input_configured(struct hid_device *hdev,
                 set_bit(ABS_HAT0Y, input_dev->absbit);
                 set_bit(ABS_MISC, input_dev->absbit);
                 
-                input_set_abs_params(input_dev, ABS_X, 0, 65535, 255, 4095);
-                input_set_abs_params(input_dev, ABS_Y, 0, 65535, 255, 4095);
+                input_set_abs_params(input_dev, ABS_X, 0, 65535, 255, 0);
+                input_set_abs_params(input_dev, ABS_Y, 0, 65535, 255, 0);
                 input_set_abs_params(input_dev, ABS_WHEEL, 0, 65535, 255, 0);
-                input_set_abs_params(input_dev, ABS_RX, 0, 65535, 255, 4095);
-                input_set_abs_params(input_dev, ABS_RY, 0, 65535, 255, 4095);
-                input_set_abs_params(input_dev, ABS_CLUTCH, 0, 65535, 255, 4095);
-                input_set_abs_params(input_dev, ABS_GAS, 0, 65535, 255, 4095);
-                input_set_abs_params(input_dev, ABS_BRAKE, 0, 65535, 255, 4095);
-
+                input_set_abs_params(input_dev, ABS_RX, 0, 65535, 255, 0);
+                input_set_abs_params(input_dev, ABS_RY, 0, 65535, 255, 0);
+                input_set_abs_params(input_dev, ABS_CLUTCH, 0, 65535, 255, 0);
+                input_set_abs_params(input_dev, ABS_GAS, 0, 65535, 255, 0);
+                input_set_abs_params(input_dev, ABS_BRAKE, 0, 65535, 255, 0);
                 input_set_abs_params(input_dev, ABS_HAT0X, -1, 1, 0, 0);
                 input_set_abs_params(input_dev, ABS_HAT0Y, -1, 1, 0, 0);
-
-               input_set_abs_params(input_dev, ABS_MISC, 0, 255, 255, 4095);
-
-                input_set_capability(input_dev, EV_MSC, MSC_SCAN);
-                
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER);
-                input_set_capability(input_dev, EV_KEY, BTN_THUMB);
-                input_set_capability(input_dev, EV_KEY, BTN_THUMB2);
-                input_set_capability(input_dev, EV_KEY, BTN_TOP);
-                input_set_capability(input_dev, EV_KEY, BTN_TOP2);
-                input_set_capability(input_dev, EV_KEY, BTN_PINKIE);
-                input_set_capability(input_dev, EV_KEY, BTN_BASE);
-                input_set_capability(input_dev, EV_KEY, BTN_BASE2);
-                input_set_capability(input_dev, EV_KEY, BTN_BASE3);
-                input_set_capability(input_dev, EV_KEY, BTN_BASE4);
-                input_set_capability(input_dev, EV_KEY, BTN_BASE5);
-                input_set_capability(input_dev, EV_KEY, BTN_BASE6);
-                input_set_capability(input_dev, EV_KEY, BTN_BASE7);
-                input_set_capability(input_dev, EV_KEY, BTN_BASE8);
-                input_set_capability(input_dev, EV_KEY, BTN_BASE9);
-                input_set_capability(input_dev, EV_KEY, BTN_DEAD);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY1);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY2);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY3);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY4);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY5);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY6);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY7);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY8);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY9);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY10);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY11);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY12);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY13);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY14);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY15);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY16);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY17);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY18);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY19);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY20);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY21);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY22);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY23);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY24);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY25);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY26);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY27);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY28);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY29);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY30);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY31);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY32);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY33);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY34);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY35);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY36);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY37);
-                input_set_capability(input_dev, EV_KEY, BTN_TRIGGER_HAPPY38);
-		break;
-
+                input_set_abs_params(input_dev, ABS_MISC, 0, 255, 255, 0);
+                break;
         }
     return 0;
 }
 
-static int hori_raw_event(struct hid_device *hdev, struct hid_report *report, u8 *data, int ret)
+static int hori_input_mapping(struct hid_device *dev,
+                             struct hid_input *input,
+                             struct hid_field *field,
+                             struct hid_usage *usage,
+                             unsigned long **bit,
+                             int *max)
 {
-    struct input_dev *input_dev = hid_get_drvdata(hdev);
-
-	switch (hdev->product) {
-
-	/* Several wheels report as this id when operating in emulation mode. */
-	case USB_DEVICE_ID_HORI_TRUCK_CONTROL_SYSTEM_WHEEL:
-            
-                input_report_abs(input_dev, ABS_X, data[14] << 8);
-                input_report_abs(input_dev, ABS_Y, data[12] << 8);
-                input_report_abs(input_dev, ABS_WHEEL, data[10]  << 8);                
-                input_report_abs(input_dev, ABS_RX, data[16] << 8);
-                input_report_abs(input_dev, ABS_RY, data[18] << 8);
-                input_report_abs(input_dev, ABS_CLUTCH, data[20] << 8);
-                input_report_abs(input_dev, ABS_GAS, data[22] << 8);                
-                input_report_abs(input_dev, ABS_BRAKE, data[24]  << 8);
-                
-//               input_report_abs(input_dev, ABS_HAT0X, data[1] >> 1 &1);
-//               input_report_abs(input_dev, ABS_HAT0Y, -data[1] >> 8 &1);
-
-                input_report_abs(input_dev, ABS_MISC, data[26]  << 8);
-        
-                input_report_key(input_dev, EV_MSC, MSC_SCAN);
-
-                input_event(input_dev, EV_KEY, BTN_TRIGGER, data[1] >> 4 &1 );                               // 1
-                input_event(input_dev, EV_KEY, BTN_THUMB, data[1] >> 5 &1);                                    // 2
-                input_event(input_dev, EV_KEY, BTN_THUMB2, data[1] >> 6 &1);                                 // 3
-                input_event(input_dev, EV_KEY, BTN_TOP, data[1] >> 7 &1);                                          // 4
-                input_event(input_dev, EV_KEY, BTN_TOP2, data[2] &1);                                                 // 5
-                input_event(input_dev, EV_KEY, BTN_PINKIE, data[2] >> 1 &1);                                     // 6
-                input_event(input_dev, EV_KEY, BTN_BASE, data[2] >> 2 &1);                                       // 7
-                input_event(input_dev, EV_KEY, BTN_BASE2, data[2] >> 3 &1);                                     // 8
-                input_event(input_dev, EV_KEY, BTN_BASE3, data[2] >> 4 &1);                                     // 9
-                input_event(input_dev, EV_KEY, BTN_BASE4, data[2] >> 5 &1);                                     // 10
-                input_event(input_dev, EV_KEY, BTN_BASE5, data[2] >> 6 &1);                                     // 11
-                input_event(input_dev, EV_KEY, BTN_BASE6, data[2] >> 7 &1);                                     // 12
-                input_event(input_dev, EV_KEY, BTN_BASE7, data[3] &1);                                              // 13
-                input_event(input_dev, EV_KEY, BTN_BASE8, data[3] >> 1 &1);                                     // 14
-                input_event(input_dev, EV_KEY, BTN_BASE9, data[3] >> 2 &1);                                     // 15
-                input_event(input_dev, EV_KEY, BTN_DEAD, data[3] >> 3 &1);                                       // 16
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY1, data[3] >> 4 &1);               // 17
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY2, data[3] >> 5 &1);               // 18
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY3, data[3] >> 6 &1);               // 19
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY4, data[3] >> 7 &1);               // 20
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY5, data[4] &1);                              // 21
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY6, data[4] >> 1 &1);                // 22
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY7, data[4] >> 2 &1);               // 23
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY8, data[4] >> 3 &1);                // 24
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY9, data[4] >> 4 &1);                // 25
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY10, data[4] >> 5 &1);                   // 26
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY11, data[4] >> 6 &1);                   // 27
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY12, data[4] >> 7 &1);                     // 28
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY13, data[5] &1);                               // 29
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY14, data[5] >> 1  &1);                     // 30
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY15, data[5] >> 2 &1);                       // 31
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY16, data[5] >> 3  &1);                     // 32
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY17, data[5] >> 4 &1);                      // 33
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY18, data[5] >> 5  &1);                     // 34
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY19, data[5] >> 6  &1);                     // 35
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY20, data[5] >> 7  &1);                     // 36
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY21, data[6] &1);                               // 37
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY22, data[6] >> 1 &1);                      // 38
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY23, data[6] >> 2 &1);                      // 39
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY24, data[6] >> 3 &1);                      // 40
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY25, data[6] >> 4 &1);                     // 41
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY26, data[6] >> 5  &1);                    // 42
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY27, data[6] >> 6  &1);                    //43
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY28, data[6] >> 7 &1);                   // 44
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY29, data[7] &1);                             // 45
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY30, data[7] >> 1 &1);                   // 46
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY31, data[7] >> 2 &1);                   // 47
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY32, data[7] >> 3 &1);                   // 48
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY33, data[7] >> 4 &1);                   // 49
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY34, data[7] >> 5 &1);                   // 50
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY35, data[7] >> 6 &1);                   // 51
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY36, data[7] >> 7 &1);                   // 52
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY37, data[8] &1);                            // 53
-                input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY38, data[8] >> 1 &1);                   // 54
-   
-                break;
-                
-        }
-        
-   /*     input_sync(input_dev); */
-    return ret;
-}
-
-static int hori_probe(struct hid_device *hdev, const struct hid_device_id *id)
-{
-	int ret;
-	struct hori_priv *priv;
-
-	priv = devm_kzalloc(&hdev->dev, sizeof(*priv), GFP_KERNEL);
-	if (!priv)
-		return -ENOMEM;
-	hid_set_drvdata(hdev, priv);
-
-	ret = hid_parse(hdev);
-	if (ret) {
-		hid_err(hdev, "parse failed\n");
-		return ret;
-	}
-
-	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-	if (ret) {
-		hid_err(hdev, "hw start failed\n");
-		return ret;
-	}
-
-	return 0;
+    /*
+     * We are reporting the events in x52_raw_event.
+     * Skip the hid-input processing.
+     */
+    return -1;
 }
 
 static const struct hid_device_id hori_devices[] = {
@@ -448,7 +341,6 @@ static struct hid_driver hori_driver = {
 	.name = "hid-hori-wheels",
 	.id_table = hori_devices,
         .report_fixup = hori_report_fixup,
-	.probe = hori_probe,
 	.input_mapping = hori_input_mapping,
 	.input_configured = hori_input_configured,
 	.raw_event = hori_raw_event,
