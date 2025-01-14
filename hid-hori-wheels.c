@@ -1,13 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 /*
- *  HID driver for some logitech "special" devices
+ *  HID driver for some Hori "special" devices
  *
- *  Copyright (c) 1999 Andreas Gal
- *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
- *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
- *  Copyright (c) 2006-2007 Jiri Kosina
- *  Copyright (c) 2008 Jiri Slaby
- *  Copyright (c) 2010 Hendrik Iben
+ *  Copyright (c) 2024/2025 Peter Stein, LinuxGamesTV aka BdMdesigN <linuxgamestv@gmail.com> 
  */
 
 #include <linux/bits.h>
@@ -27,11 +22,10 @@
 #include "hid-ids.h"
 
 #define HORI_TSC_WHEEL_RDESC_ORIG_SIZE	155
-#define HORI_BUTTONS0_HAT_SWITCH	GENMASK(3, 0)
 
-#define BTN_BASE7		0x12c
-#define BTN_BASE8		0x12d
-#define BTN_BASE9          0x12e
+#define BTN_BASE7	0x12c
+#define BTN_BASE8	0x12d
+#define BTN_BASE9       0x12e
 #define ABS_CLUTCH      ABS_RZ
 
 /* Fixed report descriptors for HORI FFB Truck Control Systems
@@ -44,78 +38,78 @@
  * separate throttle (GAS) and brake (BRAKE).
  */
 static const __u8 tcs_wheel_rdesc_fixed[] = {
-0x05, 0x01,                    		// Usage Page (Generic Desktop)        			0
-0x09, 0x04,                    		// Usage (Joystick)                    					2
-0xa1, 0x01,                    		// Collection (Application)            				4
-0x85, 0x01,                    		//  Report ID (1)                      					6
-0x15, 0x00,                    		//  Logical Minimum (0)                				8
-0x25, 0x07,                    		//  Logical Maximum (7)                				10
-0x35, 0x00,                    		//  Physical Minimum (0)               				12
-0x46, 0x3b, 0x07, 0x08,             //  Physical Maximum (315)                 		        14
-0x65, 0x14,                    		//  Unit (EnglishRotation: deg)        				17
-0x09, 0x39,                    		//  Usage (Hat switch)                  				19
-0x75, 0x04,                    		//  Report Size (4)                    					21
-0x95, 0x01,                    		//  Report Count (1)                   					23
-0x81, 0x42,                    		//  Input (Data,Var,Abs,Null)          				25
-0x65, 0x00,                    		//  Unit (None)                        					27
-0x25, 0x01,                    		//  Logical Maximum (1)                				29
-0x45, 0x01,                    		//  Physical Maximum (1)               				31
-0x05, 0x09,                    		//  Usage Page (Button)                				33
-0x19, 0x01,                    		//  Usage Minimum (1)                  				35
-0x29, 0x36,                    		//  Usage Maximum (54)                 				37
-0x75, 0x01,                    		//  Report Size (1)                    					39
-0x95, 0x36,                    		//  Report Count (54)                  					41
-0x81, 0x02,                    		//  Input (Data,Var,Abs)                   				43
-0x95, 0x06,                    		//  Report Count (6)                   					45
-0x81, 0x01,                    		//  Input (Cnst,Arr,Abs)                  				47
-0x27, 0xff, 0xff, 0x00, 0x00,  	//  Logical Maximum (65535)            				49
-0x47, 0xff, 0xff, 0x00, 0x00,  	//  Physical Maximum (65535)          		           	54
-0x75, 0x10,                    		//  Report Size (16)                   					59
-0x95, 0x08,                    		//  Report Count (8)                   					61
-0x05, 0x01,                    		//  Usage Page (Generic Desktop)       			63
-0x09, 0x30,                    		//  Usage (X)                          					65
-0x09, 0x31,                    		//  Usage (Y)                          					67
-0x09, 0x32,                    		//  Usage (Z)                          					69
-0x09, 0x33,                    		//  Usage (Rx)                         					71
-0x09, 0x34,                    		//  Usage (Ry)                         					73
-0x09, 0x35,                    		//  Usage (Rz)                         					75
-0x09, 0x36,                    		//  Usage (Slider)                    					77
-0x09, 0x36,                    		//  Usage (Slider)                     					79
-0x81, 0x02,                    	       	//  Input (Data,Var,Abs)             					81
-0x26, 0xff, 0x00,                           //  Logical Maximum (255)              				83
-0x46, 0xff, 0x00,                           //  Physical Maximum (255)             				86
+0x05, 0x01,                    		// Usage Page (Generic Desktop)        		0
+0x09, 0x04,                    		// Usage (Joystick)                    		2
+0xa1, 0x01,                    		// Collection (Application)            		4
+0x85, 0x01,                    		//  Report ID (1)                      		6
+0x15, 0x00,                    		//  Logical Minimum (0)                		8
+0x25, 0x07,                    		//  Logical Maximum (7)                		10
+0x35, 0x00,                    		//  Physical Minimum (0)               		12
+0x46, 0x3b, 0x07, 0x08,                 //  Physical Maximum (315)             		14
+0x65, 0x14,                    		//  Unit (EnglishRotation: deg)        		17
+0x09, 0x39,                    		//  Usage (Hat switch)                  	19
+0x75, 0x04,                    		//  Report Size (4)                    		21
+0x95, 0x01,                    		//  Report Count (1)                   		23
+0x81, 0x42,                    		//  Input (Data,Var,Abs,Null)          		25
+0x65, 0x00,                    		//  Unit (None)                        		27
+0x25, 0x01,                    		//  Logical Maximum (1)                		29
+0x45, 0x01,                    		//  Physical Maximum (1)               		31
+0x05, 0x09,                    		//  Usage Page (Button)                		33
+0x19, 0x01,                    		//  Usage Minimum (1)                  		35
+0x29, 0x36,                    		//  Usage Maximum (54)                 	        37
+0x75, 0x01,                    		//  Report Size (1)                    		39
+0x95, 0x36,                    		//  Report Count (54)                  		41
+0x81, 0x02,                    		//  Input (Data,Var,Abs)               		43
+0x95, 0x06,                    		//  Report Count (6)                   		45
+0x81, 0x01,                    		//  Input (Cnst,Arr,Abs)               		47
+0x27, 0xff, 0xff, 0x00, 0x00,  	        //  Logical Maximum (65535)            		49
+0x47, 0xff, 0xff, 0x00, 0x00,  	        //  Physical Maximum (65535)                    54
+0x75, 0x10,                    		//  Report Size (16)                   		59
+0x95, 0x08,                    		//  Report Count (8)                   		61
+0x05, 0x01,                    		//  Usage Page (Generic Desktop)       	        63
+0x09, 0x30,                    		//  Usage (X)                          		65
+0x09, 0x31,                    		//  Usage (Y)                          		67
+0x09, 0x32,                    		//  Usage (Z)                          		69
+0x09, 0x33,                    		//  Usage (Rx)                         		71
+0x09, 0x34,                    		//  Usage (Ry)                         		73
+0x09, 0x35,                    		//  Usage (Rz)                         		75
+0x09, 0x36,                    		//  Usage (Slider)                              77
+0x09, 0x36,                    		//  Usage (Slider)                     		79
+0x81, 0x02,                    	       	//  Input (Data,Var,Abs)             		81
+0x26, 0xff, 0x00,                       //  Logical Maximum (255)              		83
+0x46, 0xff, 0x00,                       //  Physical Maximum (255)             		86
 0x06, 0x00, 0xff,              		//  Usage Page (Vendor Defined Page 1) 		89
-0x09, 0x01,                    		//  Usage (Vendor Usage 1)             				92
-0x75, 0x08,                   		//  Report Size (8)                    					94
-0x95, 0x04,                    		//  Report Count (4)                   					96
-0x81, 0x02,                    		//  Input (Data,Var,Abs)               					98
-0xc0,                          			// End Collection                      					100
-0x06, 0x20, 0xff,              		// Usage Page (Vendor Usage Page 0xff20) 		101
-0x09, 0x01,                    		// Usage (Vendor Usage 0x01)           			104
-0xa1, 0x01,                    		// Collection (Application)            				106
-0x85, 0x20,                    		//  Report ID (32)                     					108
-0x15, 0x00,                    		//  Logical Minimum (0)                				110
-0x26, 0xff, 0x00,             		//  Logical Maximum (255)              				112
-0x75, 0x08,                    		//  Report Size (8)                    					115
-0x95, 0x1f,                    			//  Report Count (31)                  					117
-0x09, 0x02,                    		//  Usage (Vendor Usage 0x02)          			119
-0x81, 0x00,                    		//  Input (Data,Arr,Abs)               					121
-0x09, 0x02,                    		//  Usage (Vendor Usage 0x02)          			123
-0x91, 0x00,                    		//  Output (Data,Arr,Abs)              				125
-0xc0,                          			// End Collection                      					127
-0x06, 0x21, 0xff,              		// Usage Page (Vendor Usage Page 0xff21) 		128
-0x09, 0x03,                    		// Usage (Vendor Usage 0x03)           			131
-0xa1, 0x01,                    		// Collection (Application)            				133
-0x85, 0x21,                    		//  Report ID (33)                     					135
-0x15, 0x00,                    		//  Logical Minimum (0)                				137
-0x26, 0xff, 0x00,              		//  Logical Maximum (255)              				139
-0x75, 0x08,                    		//  Report Size (8)                    					142
-0x95, 0x3f,                    			//  Report Count (63)                  					144
-0x09, 0x04,                    		//  Usage (Vendor Usage 0x04)          			146
-0x81, 0x00,                    		//  Input (Data,Arr,Abs)               					148
-0x09, 0x04,                    		//  Usage (Vendor Usage 0x04)          			150
-0x91, 0x00,                    		//  Output (Data,Arr,Abs)              				152
-0xc0,                          			// End Collection                      					154
+0x09, 0x01,                    		//  Usage (Vendor Usage 1)             		92
+0x75, 0x08,                   		//  Report Size (8)                    		94
+0x95, 0x04,                    		//  Report Count (4)                   		96
+0x81, 0x02,                    		//  Input (Data,Var,Abs)               		98
+0xc0,                          			// End Collection                      	100
+0x06, 0x20, 0xff,              		// Usage Page (Vendor Usage Page 0xff20) 	101
+0x09, 0x01,                    		// Usage (Vendor Usage 0x01)           		104
+0xa1, 0x01,                    		// Collection (Application)            		106
+0x85, 0x20,                    		//  Report ID (32)                     		108
+0x15, 0x00,                    		//  Logical Minimum (0)                		110
+0x26, 0xff, 0x00,             		//  Logical Maximum (255)              		112
+0x75, 0x08,                    		//  Report Size (8)                    		115
+0x95, 0x1f,                    			//  Report Count (31)                  	117
+0x09, 0x02,                    		//  Usage (Vendor Usage 0x02)          		119
+0x81, 0x00,                    		//  Input (Data,Arr,Abs)               		121
+0x09, 0x02,                    		//  Usage (Vendor Usage 0x02)          	        123
+0x91, 0x00,                    		//  Output (Data,Arr,Abs)              		125
+0xc0,                          			// End Collection                      	127
+0x06, 0x21, 0xff,              		// Usage Page (Vendor Usage Page 0xff21) 	128
+0x09, 0x03,                    		// Usage (Vendor Usage 0x03)           	        131
+0xa1, 0x01,                    		// Collection (Application)            		133
+0x85, 0x21,                    		//  Report ID (33)                     		135
+0x15, 0x00,                    		//  Logical Minimum (0)                		137
+0x26, 0xff, 0x00,              		//  Logical Maximum (255)              		139
+0x75, 0x08,                    		//  Report Size (8)                    		142
+0x95, 0x3f,                    			//  Report Count (63)                  	144
+0x09, 0x04,                    		//  Usage (Vendor Usage 0x04)          	        146
+0x81, 0x00,                    		//  Input (Data,Arr,Abs)               		148
+0x09, 0x04,                    		//  Usage (Vendor Usage 0x04)          		150
+0x91, 0x00,                    		//  Output (Data,Arr,Abs)              		152
+0xc0,                          			// End Collection                      	154
 };
 
 static const __u8 *hori_report_fixup(struct hid_device *hdev, __u8 *rdesc,
@@ -142,7 +136,6 @@ static const __u8 *hori_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 
 static void _parse_tcs_axis_report(struct input_dev *input_dev, u8 *data)
 {
-    int hdev;
     
     static const s32 hat_to_axis[16][2] = {
         {0, 0},
@@ -156,7 +149,7 @@ static void _parse_tcs_axis_report(struct input_dev *input_dev, u8 *data)
         {-1, -1},
     };
 
-    u8 hat= (data[1] >> 1) & 0x0f ;
+    u8 hat= data[1] & 0x0f;
     
     input_report_abs(input_dev, ABS_X, data[14] << 8);
     input_report_abs(input_dev, ABS_Y, data[12] << 8);
@@ -167,9 +160,9 @@ static void _parse_tcs_axis_report(struct input_dev *input_dev, u8 *data)
     input_report_abs(input_dev, ABS_GAS, data[22] << 8);                
     input_report_abs(input_dev, ABS_BRAKE, data[24]  << 8);
                 
-    /* Hat is always the upper nibble of the penultimate byte of the report */
-    input_report_abs(input_dev, ABS_HAT0X, hat_to_axis[hat][6]);
-    input_report_abs(input_dev, ABS_HAT0Y, hat_to_axis[hat][0]);
+    /* Hat is always the upper nibble of the penultimate byte of the report. This hatswitch is very tricky */
+    input_report_abs(input_dev, ABS_HAT0X, hat_to_axis[hat][2]);
+    input_report_abs(input_dev, ABS_HAT0Y, -hat_to_axis[hat][6]);
  
     input_report_abs(input_dev, ABS_MISC, data[26]  << 8);
 }
@@ -178,35 +171,35 @@ static void _parse_tcs_button_report(struct input_dev *input_dev, u8 *data)
 {
     input_report_key(input_dev, EV_MSC, MSC_SCAN);
 
-    input_event(input_dev, EV_KEY, BTN_TRIGGER, data[1] >> 4 &1 );                                     // 1
-    input_event(input_dev, EV_KEY, BTN_THUMB, data[1] >> 5 &1);                                         // 2
-    input_event(input_dev, EV_KEY, BTN_THUMB2, data[1] >> 6 &1);                                       // 3
-    input_event(input_dev, EV_KEY, BTN_TOP, data[1] >> 7 &1);                                                // 4
-    input_event(input_dev, EV_KEY, BTN_TOP2, data[2] &1);                                                       // 5
-    input_event(input_dev, EV_KEY, BTN_PINKIE, data[2] >> 1 &1);                                            // 6
-    input_event(input_dev, EV_KEY, BTN_BASE, data[2] >> 2 &1);                                              // 7
-    input_event(input_dev, EV_KEY, BTN_BASE2, data[2] >> 3 &1);                                            // 8
-    input_event(input_dev, EV_KEY, BTN_BASE3, data[2] >> 4 &1);                                            // 9
-    input_event(input_dev, EV_KEY, BTN_BASE4, data[2] >> 5 &1);                                            // 10
-    input_event(input_dev, EV_KEY, BTN_BASE5, data[2] >> 6 &1);                                            // 11
-    input_event(input_dev, EV_KEY, BTN_BASE6, data[2] >> 7 &1);                                            // 12
-    input_event(input_dev, EV_KEY, BTN_BASE7, data[3] &1);                                                     // 13
-    input_event(input_dev, EV_KEY, BTN_BASE8, data[3] >> 1 &1);                                            // 14
-    input_event(input_dev, EV_KEY, BTN_BASE9, data[3] >> 2 &1);                                            // 15
-    input_event(input_dev, EV_KEY, BTN_DEAD, data[3] >> 3 &1);                                              // 16
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY1, data[3] >> 4 &1);                     // 17
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY2, data[3] >> 5 &1);                     // 18
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY3, data[3] >> 6 &1);                     // 19
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY4, data[3] >> 7 &1);                     // 20
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY5, data[4] &1);                              // 21
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY6, data[4] >> 1 &1);                     // 22
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY7, data[4] >> 2 &1);                     // 23
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY8, data[4] >> 3 &1);                     // 24
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY9, data[4] >> 4 &1);                     // 25
+    input_event(input_dev, EV_KEY, BTN_TRIGGER, data[1] >> 4 &1 );                          // 1
+    input_event(input_dev, EV_KEY, BTN_THUMB, data[1] >> 5 &1);                             // 2
+    input_event(input_dev, EV_KEY, BTN_THUMB2, data[1] >> 6 &1);                            // 3
+    input_event(input_dev, EV_KEY, BTN_TOP, data[1] >> 7 &1);                               // 4
+    input_event(input_dev, EV_KEY, BTN_TOP2, data[2] &1);                                   // 5
+    input_event(input_dev, EV_KEY, BTN_PINKIE, data[2] >> 1 &1);                            // 6
+    input_event(input_dev, EV_KEY, BTN_BASE, data[2] >> 2 &1);                              // 7
+    input_event(input_dev, EV_KEY, BTN_BASE2, data[2] >> 3 &1);                             // 8
+    input_event(input_dev, EV_KEY, BTN_BASE3, data[2] >> 4 &1);                             // 9
+    input_event(input_dev, EV_KEY, BTN_BASE4, data[2] >> 5 &1);                             // 10
+    input_event(input_dev, EV_KEY, BTN_BASE5, data[2] >> 6 &1);                             // 11
+    input_event(input_dev, EV_KEY, BTN_BASE6, data[2] >> 7 &1);                             // 12
+    input_event(input_dev, EV_KEY, BTN_BASE7, data[3] &1);                                  // 13
+    input_event(input_dev, EV_KEY, BTN_BASE8, data[3] >> 1 &1);                             // 14
+    input_event(input_dev, EV_KEY, BTN_BASE9, data[3] >> 2 &1);                             // 15
+    input_event(input_dev, EV_KEY, BTN_DEAD, data[3] >> 3 &1);                              // 16
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY1, data[3] >> 4 &1);                    // 17
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY2, data[3] >> 5 &1);                    // 18
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY3, data[3] >> 6 &1);                    // 19
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY4, data[3] >> 7 &1);                    // 20
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY5, data[4] &1);                         // 21
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY6, data[4] >> 1 &1);                    // 22
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY7, data[4] >> 2 &1);                    // 23
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY8, data[4] >> 3 &1);                    // 24
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY9, data[4] >> 4 &1);                    // 25
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY10, data[4] >> 5 &1);                   // 26
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY11, data[4] >> 6 &1);                   // 27
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY12, data[4] >> 7 &1);                   // 28
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY13, data[5] &1);                            // 29
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY13, data[5] &1);                        // 29
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY14, data[5] >> 1  &1);                  // 30
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY15, data[5] >> 2 &1);                   // 31
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY16, data[5] >> 3  &1);                  // 32
@@ -214,7 +207,7 @@ static void _parse_tcs_button_report(struct input_dev *input_dev, u8 *data)
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY18, data[5] >> 5  &1);                  // 34
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY19, data[5] >> 6  &1);                  // 35
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY20, data[5] >> 7  &1);                  // 36
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY21, data[6] &1);                            // 37
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY21, data[6] &1);                        // 37
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY22, data[6] >> 1 &1);                   // 38
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY23, data[6] >> 2 &1);                   // 39
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY24, data[6] >> 3 &1);                   // 40
@@ -222,7 +215,7 @@ static void _parse_tcs_button_report(struct input_dev *input_dev, u8 *data)
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY26, data[6] >> 5  &1);                  // 42
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY27, data[6] >> 6  &1);                  // 43
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY28, data[6] >> 7 &1);                   // 44
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY29, data[7] &1);                            // 45
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY29, data[7] &1);                        // 45
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY30, data[7] >> 1 &1);                   // 46
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY31, data[7] >> 2 &1);                   // 47
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY32, data[7] >> 3 &1);                   // 48
@@ -230,7 +223,7 @@ static void _parse_tcs_button_report(struct input_dev *input_dev, u8 *data)
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY34, data[7] >> 5 &1);                   // 50
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY35, data[7] >> 6 &1);                   // 51
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY36, data[7] >> 7 &1);                   // 52
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY37, data[8] &1);                            // 53
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY37, data[8] &1);                        // 53
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY38, data[8] >> 1 &1);                   // 54
 }
 
@@ -286,7 +279,7 @@ static int hori_input_configured(struct hid_device *hdev,
                 set_bit(BTN_DEAD, input_dev->keybit);
 
                 for (i = 0x10; i < 54; i++) {
-                        set_bit(BTN_TRIGGER_HAPPY + i - 0x10, input_dev->keybit);
+                    set_bit(BTN_TRIGGER_HAPPY + i - 0x10, input_dev->keybit);
                 }
 
                 set_bit(ABS_X, input_dev->absbit);

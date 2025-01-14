@@ -27,46 +27,46 @@
 #define BTN_BASE9          0x12e
 
 static const __u8 tcs_shifter_rdesc_fixed[] = {
-0x05, 0x01,					 // Usage Page (Generic Desktop)        			0
-0x09, 0x04,                    		// Usage (Joystick)                    					2
-0xa1, 0x01,                    		// Collection (Application)            				4
-0x85, 0x01,                    		//  Report ID (1)                      					6
-0x15, 0x00,                    		//  Logical Minimum (0)                				8
-0x25, 0x01,                    		//  Logical Maximum (1)          	  				10
-0x35, 0x00,                    		//  Physical Minimum (0)               				12
-0x45, 0x01,                    		//  Physical Maximum (1)               				14
-0x05, 0x09,                    		//  Usage Page (Button)                				16
-0x19, 0x01,                    		//  Usage Minimum (1)                  				18
-0x29, 0x2b,                    		//  Usage Maximum (43)                 				20
-0x75, 0x01,                    		//  Report Size (1)                    					22
-0x95, 0x2b,                    		//  Report Count (43)                  					24
-0x81, 0x02,                    		//  Input (Data,Var,Abs)               					26
-0x95, 0x05,                    		//  Report Count (5)                   					28
-0x81, 0x01,                    		//  Input (Cnst,Arr,Abs)               					30
-0x26, 0xff, 0x00,              		//  Logical Maximum (255)              				32
-0x46, 0xff, 0x00,              		//  Physical Maximum (255)             				35
+0x05, 0x01,			        // Usage Page (Generic Desktop)        		0
+0x09, 0x04,                    		// Usage (Joystick)                    		2
+0xa1, 0x01,                    		// Collection (Application)            		4
+0x85, 0x01,                    		//  Report ID (1)                      		6
+0x15, 0x00,                    		//  Logical Minimum (0)                		8
+0x25, 0x01,                    		//  Logical Maximum (1)          	  	10
+0x35, 0x00,                    		//  Physical Minimum (0)               		12
+0x45, 0x01,                    		//  Physical Maximum (1)               		14
+0x05, 0x09,                    		//  Usage Page (Button)                		16
+0x19, 0x01,                    		//  Usage Minimum (1)                  		18
+0x29, 0x2b,                    		//  Usage Maximum (43)                 		20
+0x75, 0x01,                    		//  Report Size (1)                    		22
+0x95, 0x2b,                    		//  Report Count (43)                  		24
+0x81, 0x02,                    		//  Input (Data,Var,Abs)               		26
+0x95, 0x05,                    		//  Report Count (5)                   		28
+0x81, 0x01,                    		//  Input (Cnst,Arr,Abs)               		30
+0x26, 0xff, 0x00,              		//  Logical Maximum (255)              		32
+0x46, 0xff, 0x00,              		//  Physical Maximum (255)             		35
 0x06, 0x00, 0xff,              		//  Usage Page (Vendor Defined Page 1) 		38
-0x09, 0x01,                    		//  Usage (Vendor Usage 1)             				41
-0x75, 0x08,                    		//  Report Size (8)                    					43
-0x95, 0x04,                    		//  Report Count (4)                   					45
-0x81, 0x02,                    		//  Input (Data,Var,Abs)               					47
-0x09, 0x02,                    		//  Usage (Vendor Usage 2)             				49
-0x95, 0x1f,                    			//  Report Count (31)                  					51
-0x91, 0x02,                    		//  Output (Data,Var,Abs)              				53
-0xc0,                          			// End Collection                      					55
-0x06, 0x21, 0xff,              		// Usage Page (Vendor Usage Page 0xff21) 		56
-0x09, 0x03,                    		// Usage (Vendor Usage 0x03)           			59
-0xa1, 0x01,                    		// Collection (Application)            				61
-0x85, 0x22,                    		//  Report ID (34)                     					63
-0x15, 0x00,                    		//  Logical Minimum (0)                				65
-0x26, 0xff, 0x00,              		//  Logical Maximum (255)              				67
-0x75, 0x08,                    		//  Report Size (8)                    					70
-0x95, 0x3f,                    			//  Report Count (63)                  					72
-0x09, 0x04,                    		//  Usage (Vendor Usage 0x04)          			74
-0x81, 0x00,                    		//  Input (Data,Arr,Abs)               					76
-0x09, 0x04,                    		//  Usage (Vendor Usage 0x04)          			78
-0x91, 0x00,                   		//  Output (Data,Arr,Abs)              				80
-0xc0,                          			// End Collection                      					82
+0x09, 0x01,                    		//  Usage (Vendor Usage 1)             		41
+0x75, 0x08,                    		//  Report Size (8)                    		43
+0x95, 0x04,                    		//  Report Count (4)                   		45
+0x81, 0x02,                    		//  Input (Data,Var,Abs)               		47
+0x09, 0x02,                    		//  Usage (Vendor Usage 2)             		49
+0x95, 0x1f,                    		//  Report Count (31)                  		51
+0x91, 0x02,                    		//  Output (Data,Var,Abs)              		53
+0xc0,                          		// End Collection                      		55
+0x06, 0x21, 0xff,              		// Usage Page (Vendor Usage Page 0xff21) 	56
+0x09, 0x03,                    		// Usage (Vendor Usage 0x03)           		59
+0xa1, 0x01,                    		// Collection (Application)            		61
+0x85, 0x22,                    		//  Report ID (34)                     		63
+0x15, 0x00,                    		//  Logical Minimum (0)                		65
+0x26, 0xff, 0x00,              		//  Logical Maximum (255)              		67
+0x75, 0x08,                    		//  Report Size (8)                    		70
+0x95, 0x3f,                    		//  Report Count (63)                  		72
+0x09, 0x04,                    		//  Usage (Vendor Usage 0x04)          		74
+0x81, 0x00,                    		//  Input (Data,Arr,Abs)               		76
+0x09, 0x04,                    		//  Usage (Vendor Usage 0x04)          		78
+0x91, 0x00,                   		//  Output (Data,Arr,Abs)              		80
+0xc0,                          		// End Collection                      		82
 };
 
 static const __u8 *hori_multisticks_report_fixup(struct hid_device *hdev, __u8 *rdesc,
@@ -94,31 +94,31 @@ static void _parse_tsc_shifter_button_report(struct input_dev *input_dev, u8 *da
 {
     input_report_key(input_dev, EV_MSC, MSC_SCAN);
 
-    input_event(input_dev, EV_KEY, BTN_TRIGGER, data[1]  &1 );                                             // 1
-    input_event(input_dev, EV_KEY, BTN_THUMB, data[1] >> 1 &1);                                         // 2
-    input_event(input_dev, EV_KEY, BTN_THUMB2, data[1] >> 2 &1);                                       // 3
-    input_event(input_dev, EV_KEY, BTN_TOP, data[1] >> 3 &1);                                                // 4
-    input_event(input_dev, EV_KEY, BTN_TOP2, data[1] >> 4&1);                                               // 5
-    input_event(input_dev, EV_KEY, BTN_PINKIE, data[1] >> 5 &1);                                            // 6
-    input_event(input_dev, EV_KEY, BTN_BASE, data[1] >> 6 &1);                                              // 7
-    input_event(input_dev, EV_KEY, BTN_BASE2, data[1] >> 7 &1);                                            // 8
-    input_event(input_dev, EV_KEY, BTN_BASE3, data[2]  &1);                                                    // 9
-    input_event(input_dev, EV_KEY, BTN_BASE4, data[2] >> 5 &1);                                            // 10
-    input_event(input_dev, EV_KEY, BTN_BASE5, data[2] >> 6 &1);                                            // 11
-    input_event(input_dev, EV_KEY, BTN_BASE6, data[2] >> 7 &1);                                            // 12
-    input_event(input_dev, EV_KEY, BTN_BASE7, data[2] &1);                                                     // 13
-    input_event(input_dev, EV_KEY, BTN_BASE8, data[2] >> 1 &1);                                            // 14
-    input_event(input_dev, EV_KEY, BTN_BASE9, data[2] >> 2 &1);                                            // 15
-    input_event(input_dev, EV_KEY, BTN_DEAD, data[2] >> 3 &1);                                              // 16
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY1, data[3] &1);                              // 17
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY2, data[3] >> 1 &1);                     // 18
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY3, data[3] >> 2 &1);                     // 19
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY4, data[3] >> 3 &1);                     // 20
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY5, data[3] >> 4 &1);                     // 21
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY6, data[3] >> 5 &1);                     // 22
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY7, data[3] >> 6 &1);                     // 23
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY8, data[3] >> 7 &1);                     // 24
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY9, data[4] &1);                              // 25
+    input_event(input_dev, EV_KEY, BTN_TRIGGER, data[1]  &1 );                              // 1
+    input_event(input_dev, EV_KEY, BTN_THUMB, data[1] >> 1 &1);                             // 2
+    input_event(input_dev, EV_KEY, BTN_THUMB2, data[1] >> 2 &1);                            // 3
+    input_event(input_dev, EV_KEY, BTN_TOP, data[1] >> 3 &1);                               // 4
+    input_event(input_dev, EV_KEY, BTN_TOP2, data[1] >> 4&1);                               // 5
+    input_event(input_dev, EV_KEY, BTN_PINKIE, data[1] >> 5 &1);                            // 6
+    input_event(input_dev, EV_KEY, BTN_BASE, data[1] >> 6 &1);                              // 7
+    input_event(input_dev, EV_KEY, BTN_BASE2, data[1] >> 7 &1);                             // 8
+    input_event(input_dev, EV_KEY, BTN_BASE3, data[2]  &1);                                 // 9
+    input_event(input_dev, EV_KEY, BTN_BASE4, data[2] >> 5 &1);                             // 10
+    input_event(input_dev, EV_KEY, BTN_BASE5, data[2] >> 6 &1);                             // 11
+    input_event(input_dev, EV_KEY, BTN_BASE6, data[2] >> 7 &1);                             // 12
+    input_event(input_dev, EV_KEY, BTN_BASE7, data[2] &1);                                  // 13
+    input_event(input_dev, EV_KEY, BTN_BASE8, data[2] >> 1 &1);                             // 14
+    input_event(input_dev, EV_KEY, BTN_BASE9, data[2] >> 2 &1);                             // 15
+    input_event(input_dev, EV_KEY, BTN_DEAD, data[2] >> 3 &1);                              // 16
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY1, data[3] &1);                         // 17
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY2, data[3] >> 1 &1);                    // 18
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY3, data[3] >> 2 &1);                    // 19
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY4, data[3] >> 3 &1);                    // 20
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY5, data[3] >> 4 &1);                    // 21
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY6, data[3] >> 5 &1);                    // 22
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY7, data[3] >> 6 &1);                    // 23
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY8, data[3] >> 7 &1);                    // 24
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY9, data[4] &1);                         // 25
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY10, data[4] >> 1 &1);                   // 26
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY11, data[4] >>  2 &1);                  // 27
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY12, data[4] >> 3 &1);                   // 28
@@ -126,7 +126,7 @@ static void _parse_tsc_shifter_button_report(struct input_dev *input_dev, u8 *da
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY14, data[4] >> 5  &1);                  // 30
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY15, data[4] >> 6 &1);                   // 31
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY16, data[4] >> 7  &1);                  // 32
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY17, data[5] &1);                            // 33
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY17, data[5] &1);                        // 33
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY18, data[5] >> 1  &1);                  // 34
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY19, data[5] >> 2  &1);                  // 35
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY20, data[5] >> 3  &1);                  // 36
@@ -134,7 +134,7 @@ static void _parse_tsc_shifter_button_report(struct input_dev *input_dev, u8 *da
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY22, data[5] >> 5 &1);                   // 38
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY23, data[5] >> 6 &1);                   // 39
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY24, data[5] >> 7 &1);                   // 40
-    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY25, data[6] &1);                            // 41
+    input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY25, data[6] &1);                        // 41
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY26, data[6] >> 1  &1);                  // 42
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY27, data[6] >> 2  &1);                  // 43
 }
