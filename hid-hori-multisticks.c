@@ -90,7 +90,7 @@ static const __u8 *hori_multisticks_report_fixup(struct hid_device *hdev, __u8 *
 
 }
 
-static void _parse_tsc_shifter_button_report(struct input_dev *input_dev, u8 *data)
+static void _parse_tcs_shifter_button_report(struct input_dev *input_dev, u8 *data)
 {
     input_report_key(input_dev, EV_MSC, MSC_SCAN);
 
@@ -148,7 +148,7 @@ static int  hori_multisticks_raw_event(struct hid_device *hdev,
 
 	/* Several wheels report as this id when operating in emulation mode. */
 	case USB_DEVICE_ID_HORI_TRUCK_CONTROL_SYSTEM_SHIFTER:
-                _parse_tsc_shifter_button_report(input_dev, data);
+                _parse_tcs_shifter_button_report(input_dev, data);
                 break;
         }
     input_sync(input_dev);
@@ -169,7 +169,7 @@ static int hori_multisticks_input_configured(struct hid_device *hdev,
 	switch (hdev->product) {
 
 	/* Several wheels report as this id when operating in emulation mode. */
-	case USB_DEVICE_ID_HORI_TRUCK_CONTROL_SYSTEM_WHEEL:
+	case USB_DEVICE_ID_HORI_TRUCK_CONTROL_SYSTEM_SHIFTER:
 
                 set_bit(BTN_TRIGGER, input_dev->keybit);
                 set_bit(BTN_THUMB, input_dev->keybit);
@@ -210,6 +210,7 @@ static int hori_multisticks_input_mapping(struct hid_device *dev,
      */
     return -1;
 }
+
 static const struct hid_device_id hori_multisticks_devices[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_HORI, USB_DEVICE_ID_HORI_TRUCK_CONTROL_SYSTEM_SHIFTER) },
 	{ }
