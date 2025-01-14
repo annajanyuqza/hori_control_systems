@@ -165,8 +165,7 @@ static int hori_multisticks_input_configured(struct hid_device *hdev,
 
     set_bit(MSC_SCAN, input_dev->mscbit);
     set_bit(EV_KEY, input_dev->evbit);
-    set_bit(EV_ABS, input_dev->evbit);
-    
+
 	switch (hdev->product) {
 
 	/* Several wheels report as this id when operating in emulation mode. */
