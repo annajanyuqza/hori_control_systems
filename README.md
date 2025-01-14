@@ -5,7 +5,9 @@ Force Feedback are not working yet.
 
 Button 5 can't use as return or left mouse button, because the button is not mapped as left mouse button/return key.
 The steering wheel behaves the same as under Windows. The left analog stick can now be used as a mouse.
-The dead zone has also been resolved.
+The dead zones are also been resolved and the hatswich are working as expected.
+
+The dead zones and range from the Wheel are fixed at this moment and the driver does not yet have a userspace connection for the future Linux Hori Device Management GUI
 
 The shifter is full working now, but it's displayed twice.
 
