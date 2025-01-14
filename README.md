@@ -9,7 +9,7 @@ The dead zones are also been resolved and the hatswich are working as expected.
 
 The dead zones and range from the Wheel are fixed at this moment and the driver does not yet have a userspace connection for the future Linux Hori Device Management GUI
 
-The shifter is full working now, but it's displayed twice.
+The shifter is full working now, too.
 
 This kernel driver is early alpha.
 
