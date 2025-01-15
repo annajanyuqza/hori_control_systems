@@ -103,13 +103,13 @@ static void _parse_tcs_shifter_button_report(struct input_dev *input_dev, u8 *da
     input_event(input_dev, EV_KEY, BTN_BASE, data[1] >> 6 &1);                              // 7
     input_event(input_dev, EV_KEY, BTN_BASE2, data[1] >> 7 &1);                             // 8
     input_event(input_dev, EV_KEY, BTN_BASE3, data[2]  &1);                                 // 9
-    input_event(input_dev, EV_KEY, BTN_BASE4, data[2] >> 5 &1);                             // 10
-    input_event(input_dev, EV_KEY, BTN_BASE5, data[2] >> 6 &1);                             // 11
-    input_event(input_dev, EV_KEY, BTN_BASE6, data[2] >> 7 &1);                             // 12
-    input_event(input_dev, EV_KEY, BTN_BASE7, data[2] &1);                                  // 13
-    input_event(input_dev, EV_KEY, BTN_BASE8, data[2] >> 1 &1);                             // 14
-    input_event(input_dev, EV_KEY, BTN_BASE9, data[2] >> 2 &1);                             // 15
-    input_event(input_dev, EV_KEY, BTN_DEAD, data[2] >> 3 &1);                              // 16
+    input_event(input_dev, EV_KEY, BTN_BASE4, data[2] >> 1 &1);                             // 10
+    input_event(input_dev, EV_KEY, BTN_BASE5, data[2] >> 2 &1);                             // 11
+    input_event(input_dev, EV_KEY, BTN_BASE6, data[2] >> 3 &1);                             // 12
+    input_event(input_dev, EV_KEY, BTN_BASE7, data[2] >> 4 &1);                                  // 13
+    input_event(input_dev, EV_KEY, BTN_BASE8, data[2] >> 5 &1);                             // 14
+    input_event(input_dev, EV_KEY, BTN_BASE9, data[2] >> 6 &1);                             // 15
+    input_event(input_dev, EV_KEY, BTN_DEAD, data[2] >> 7 &1);                              // 16
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY1, data[3] &1);                         // 17
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY2, data[3] >> 1 &1);                    // 18
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY3, data[3] >> 2 &1);                    // 19
