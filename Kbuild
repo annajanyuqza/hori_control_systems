@@ -1,4 +1,3 @@
-obj-m := hid-hori-wheels.o
-obj-m += hid-hori-multisticks.o
+obj-m := hid-hori.o
 
 ccflags-y := -Idrivers/hid
