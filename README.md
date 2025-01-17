@@ -1,4 +1,4 @@
-# This is a Experimental Linux Kernel driver for the Hori Truck Control System.
+# This is a Experimental Linux Kernel (for kernels 6.12 or higher) driver for the Hori Truck Control System.
 
 All three pedals works now, Gas, brake and clutch.
 Force Feedback are not working yet.
