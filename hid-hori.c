@@ -277,9 +277,6 @@ static void _parse_tcs_wheel_button_report(struct input_dev *input_dev, u8 *data
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY37, data[8] &1);                        // 53
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY38, data[8] >> 1 &1);                   // 54
 
-    //input_report_key(input_dev, EV_KEY, BTN_LEFT);    
-    //input_event(input_dev, EV_KEY, BTN_LEFT, data[0] & 0x01);
-
 }
 
 static void _parse_tcs_shifter_button_report(struct input_dev *input_dev, u8 *data)
@@ -331,11 +328,6 @@ static void _parse_tcs_shifter_button_report(struct input_dev *input_dev, u8 *da
     input_event(input_dev, EV_KEY, BTN_TRIGGER_HAPPY27, data[6] >> 2  &1);                  // 43
 }
 
-static void _parse_tcs_mouse_button_report(struct input_dev *input_dev, u8 *data)
-{
-
-}
-
 static int  hori_raw_event(struct hid_device *hdev,
                          struct hid_report *report, u8 *data, int len)
 {
@@ -347,7 +339,6 @@ static int  hori_raw_event(struct hid_device *hdev,
 	case USB_DEVICE_ID_HORI_TRUCK_CONTROL_SYSTEM_WHEEL:
                 _parse_tcs_axis_report(input_dev, data);
                 _parse_tcs_wheel_button_report(input_dev, data);
-//                _parse_tcs_mouse_button_report(input_dev, data);
                 break;
 	case USB_DEVICE_ID_HORI_TRUCK_CONTROL_SYSTEM_SHIFTER:
                 _parse_tcs_shifter_button_report(input_dev, data);
@@ -395,8 +386,6 @@ static int hori_input_configured(struct hid_device *hdev,
                 for (i = 0x10; i < 54; i++) {
                     set_bit(BTN_TRIGGER_HAPPY + i - 0x10, input_dev->keybit);
                 }
-                
-//                set_bit(BTN_LEFT, input_dev->keybit);
 
                 set_bit(ABS_X, input_dev->absbit);
                 set_bit(ABS_Y, input_dev->absbit);
