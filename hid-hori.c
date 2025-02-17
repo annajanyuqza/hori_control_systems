@@ -117,7 +117,7 @@ static const __u8 tcs_wheel_rdesc_fixed[] = {
 };
 
 static const __u8 tcs_shifter_rdesc_fixed[] = {
-	0x05, 0x01         // Usage Page (Generic Desktop)           0
+	0x05, 0x01,        // Usage Page (Generic Desktop)           0
 	0x09, 0x04,        // Usage (Joystick)                       2
 	0xa1, 0x01,        // Collection (Application)               4
 	0x85, 0x01,        //  Report ID (1)                         6
@@ -159,7 +159,7 @@ static const __u8 tcs_shifter_rdesc_fixed[] = {
 	0xc0,              // End Collection                         82
 };
 
-static const s32 hat_to_axis[][] = {
+static const s32 hat_to_axis[9][2] = {
 	{0, 0},
 	{0, -1},
 	{1, -1},
@@ -221,28 +221,8 @@ static void parse_tcs_axis_report(struct input_dev *input_dev, u8 *data)
 	input_report_abs(input_dev, ABS_MISC, data[26] << 8);
 }
 
-// static void parse_tcs_wheel_button_report(struct input_dev *input_dev, u8 *data)
-// {
-// 	input_report_key(input_dev, EV_MSC, MSC_SCAN);
-
-// 	u8 i, state, key;
-// 	u8 bit_offset, data_index;
-
-// 	for (i = 0; i < HORI_TCS_WHEEL_BUTTONS; ++i) {
-// 		bit_offset = (i + 4) % 8;
-// 		data_index = (i + 4) / 8 + 1;
-// 		state = data[data_index] & BIT(bit_offset);
-
-// 		key = i + BTN_JOYSTICK;
-// 		if (key > BTN_DEAD)
-// 			key = i + BTN_TRIGGER_HAPPY - JOY_RANGE;
-
-// 		input_event(input_dev, EV_KEY, key, state);
-// 	}
-// }
-
-static int  hori_raw_event(struct hid_device *hdev,
-			   struct hid_report *report, u8 *data, int len)
+static int hori_raw_event(struct hid_device *hdev,
+			  struct hid_report *report, u8 *data, int len)
 {
 	if (hdev->product != USB_DEVICE_ID_HORI_TRUCK_WHEEL)
 		return 0;
@@ -318,7 +298,7 @@ static const struct hid_device_id hori_devices[] = {
 MODULE_DEVICE_TABLE(hid, hori_devices);
 
 static struct hid_driver hori_driver = {
-	.name = "hid-hori",
+	.name = "hid-hori-control-systems",
 	.id_table = hori_devices,
 	.report_fixup = hori_report_fixup,
 	.input_mapping = hori_input_mapping,
