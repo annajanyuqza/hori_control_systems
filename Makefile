@@ -1,7 +1,7 @@
 #Makefile
 KVERSION := `uname -r`
 KDIR := /lib/modules/${KVERSION}/build
-MODULE_LOADED := $(shell lsmod | grep hid_universal_pidff)
+MODULE_LOADED := $(shell lsmod | grep hid_hori)
 
 default: clean
 	$(MAKE) -C $(KDIR) M=$$PWD
