@@ -2,7 +2,7 @@
 /*
  *  HID driver for some Hori "special" devices
  *
- *  Copyright (c) 2024/2025 Peter Stein, LinuxGamesTV aka BdMdesigN <linuxgamestv@gmail.com>
+ *  Copyright (c) 2024/2025 Peter Stein <linuxgamestv@gmail.com>
  */
 
 #include <linux/bits.h>
@@ -20,16 +20,10 @@
 #include "usbhid/usbhid.h"
 #include "hid-ids.h"
 
-#define HORI_TCS_WHEEL_RDESC_ORIG_SIZE		155
-#define HORI_TCS_SHIFTER_RDESC_ORIG_SIZE	83
+#define HORI_TCS_WHEEL_RDESC_ORIG_SIZE	155
+#define HORI_TCS_WHEEL_BUTTONS		54
 
-#define HORI_TCS_WHEEL_BUTTONS	54
-
-#define BTN_BASE7	0x12c
-#define BTN_BASE8	0x12d
-#define BTN_BASE9       0x12e
 #define ABS_CLUTCH      ABS_RZ
-
 #define JOY_RANGE	(BTN_DEAD - BTN_JOYSTICK + 1)
 
 /* Fixed report descriptors for HORI FFB Truck Control Systems
@@ -116,49 +110,6 @@ static const __u8 tcs_wheel_rdesc_fixed[] = {
 	0xc0,                          // End Collection                         154
 };
 
-static const __u8 tcs_shifter_rdesc_fixed[] = {
-	0x05, 0x01,        // Usage Page (Generic Desktop)           0
-	0x09, 0x04,        // Usage (Joystick)                       2
-	0xa1, 0x01,        // Collection (Application)               4
-	0x85, 0x01,        //  Report ID (1)                         6
-	0x15, 0x00,        //  Logical Minimum (0)                   8
-	0x25, 0x01,        //  Logical Maximum (1)                   10
-	0x35, 0x00,        //  Physical Minimum (0)                  12
-	0x45, 0x01,        //  Physical Maximum (1)                  14
-	0x05, 0x09,        //  Usage Page (Button)                   16
-	0x19, 0x01,        //  Usage Minimum (1)                     18
-	0x29, 0x2b,        //  Usage Maximum (43)                    20
-	0x75, 0x01,        //  Report Size (1)                       22
-	0x95, 0x2b,        //  Report Count (43)                     24
-	0x81, 0x02,        //  Input (Data,Var,Abs)                  26
-	0x95, 0x05,        //  Report Count (5)                      28
-	0x81, 0x01,        //  Input (Cnst,Arr,Abs)                  30
-	0x26, 0xff, 0x00,  //  Logical Maximum (255)                 32
-	0x46, 0xff, 0x00,  //  Physical Maximum (255)                35
-	0x06, 0x00, 0xff,  //  Usage Page (Vendor Defined Page 1)    38
-	0x09, 0x01,        //  Usage (Vendor Usage 1)                41
-	0x75, 0x08,        //  Report Size (8)                       43
-	0x95, 0x04,        //  Report Count (4)                      45
-	0x81, 0x02,        //  Input (Data,Var,Abs)                  47
-	0x09, 0x02,        //  Usage (Vendor Usage 2)                49
-	0x95, 0x1f,        //  Report Count (31)                     51
-	0x91, 0x02,        //  Output (Data,Var,Abs)                 53
-	0xc0,              // End Collection                         55
-	0x06, 0x21, 0xff,  // Usage Page (Vendor Usage Page 0xff21)  56
-	0x09, 0x03,        // Usage (Vendor Usage 0x03)              59
-	0xa1, 0x01,        // Collection (Application)               61
-	0x85, 0x22,        //  Report ID (34)                        63
-	0x15, 0x00,        //  Logical Minimum (0)                   65
-	0x26, 0xff, 0x00,  //  Logical Maximum (255)                 67
-	0x75, 0x08,        //  Report Size (8)                       70
-	0x95, 0x3f,        //  Report Count (63)                     72
-	0x09, 0x04,        //  Usage (Vendor Usage 0x04)             74
-	0x81, 0x00,        //  Input (Data,Arr,Abs)                  76
-	0x09, 0x04,        //  Usage (Vendor Usage 0x04)             78
-	0x91, 0x00,        //  Output (Data,Arr,Abs)                 80
-	0xc0,              // End Collection                         82
-};
-
 static const s32 hat_to_axis[9][2] = {
 	{0, 0},
 	{0, -1},
@@ -185,20 +136,9 @@ static const __u8 *hori_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 		rdesc = tcs_wheel_rdesc_fixed;
 		*rsize = sizeof(tcs_wheel_rdesc_fixed);
 		break;
-
-	case USB_DEVICE_ID_HORI_TRUCK_SHIFTER:
-		if (*rsize != HORI_TCS_SHIFTER_RDESC_ORIG_SIZE)
-			break;
-
-		hid_info(hdev,
-			"fixing up HORI TCS  Shifter report descriptor\n");
-		rdesc = tcs_shifter_rdesc_fixed;
-		*rsize = sizeof(tcs_shifter_rdesc_fixed);
-		break;
 	}
 
 	return rdesc;
-
 }
 
 static void parse_tcs_axis_report(struct input_dev *input_dev, u8 *data)
@@ -292,7 +232,6 @@ static int hori_input_mapping(struct hid_device *dev, struct hid_input *input,
 
 static const struct hid_device_id hori_devices[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_HORI, USB_DEVICE_ID_HORI_TRUCK_WHEEL) },
-	{ HID_USB_DEVICE(USB_VENDOR_ID_HORI, USB_DEVICE_ID_HORI_TRUCK_SHIFTER) },
 	{ }
 };
 MODULE_DEVICE_TABLE(hid, hori_devices);
@@ -307,6 +246,6 @@ static struct hid_driver hori_driver = {
 };
 module_hid_driver(hori_driver);
 
-MODULE_AUTHOR("LinuxGamesTV <linuxgamestv@gmail.com>");
+MODULE_AUTHOR("Peter Stein <linuxgamestv@gmail.com>");
 MODULE_DESCRIPTION("HID driver for HORI Control Systems Wheels");
 MODULE_LICENSE("GPL");
