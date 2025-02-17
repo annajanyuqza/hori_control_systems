@@ -23,13 +23,7 @@
 #define HORI_TCS_WHEEL_RDESC_ORIG_SIZE		155
 #define HORI_TCS_SHIFTER_RDESC_ORIG_SIZE	83
 
-#define HORI_TCS_WHEEL_BUTTONS	54
-
-#define BTN_BASE7	0x12c
-#define BTN_BASE8	0x12d
-#define BTN_BASE9       0x12e
 #define ABS_CLUTCH      ABS_RZ
-
 #define JOY_RANGE	(BTN_DEAD - BTN_JOYSTICK + 1)
 
 /* Fixed report descriptors for HORI FFB Truck Control Systems
@@ -193,7 +187,6 @@ static const __u8 *hori_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 	}
 
 	return rdesc;
-
 }
 
 static void parse_tcs_axis_report(struct input_dev *input_dev, u8 *data)
