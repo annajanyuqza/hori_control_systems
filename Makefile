@@ -1,17 +1,20 @@
 #Makefile
+KVERSION := `uname -r`
+KDIR := /lib/modules/${KVERSION}/build
 MODULE_LOADED := $(shell lsmod | grep hid_universal_pidff)
 
-all:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+default: clean
+	$(MAKE) -C $(KDIR) M=$$PWD
 
-udev-rules:
-	install -m 0644 udev/99-hori-wheels.rules /etc/udev/rules.d/
-
-install:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules_install
+debug: clean
+	$(MAKE) -C $(KDIR) M=$$PWD EXTRA_CFLAGS="-g -DDEBUG"
 
 clean:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+	$(MAKE) -C $(KDIR) M=$$PWD clean
+
+install: default
+	$(MAKE) -C $(KDIR) M=$$PWD modules_install
+	depmod -A
 
 unload:
 	@if [ "$(MODULE_LOADED)" != "" ]; then\
@@ -20,3 +23,6 @@ unload:
 
 load: unload
 	insmod hid-hori.ko
+
+udev-rules:
+	install -m 0644 udev/99-hori-wheels.rules /etc/udev/rules.d/
