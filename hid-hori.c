@@ -279,15 +279,15 @@ static int hori_input_mapping(struct hid_device *dev, struct hid_input *input,
 			      struct hid_field *field, struct hid_usage *usage,
 			      unsigned long **bit, int *max)
 {
-	/* Skip non-joystick */
-	if (field->application != HID_GD_JOYSTICK)
-		return 0;
+	/* Skip mapping of device axes */
+	switch (usage->hid) {
+	case HID_GD_X: case HID_GD_Y: case HID_GD_Z:
+	case HID_GD_RX: case HID_GD_RY: case HID_GD_RZ:
+	case HID_GD_SLIDER: case HID_GD_HATSWITCH:
+		return -1;
+	}
 
-	/* Skip buttons */
-	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON)
-		return 0;
-
-	return -1;
+	return 0;
 }
 
 static const struct hid_device_id hori_devices[] = {
