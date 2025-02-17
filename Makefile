@@ -1,5 +1,5 @@
 #Makefile
-obj-m := hid-hori.o
+MODULE_LOADED := $(shell lsmod | grep hid_universal_pidff)
 
 all:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
@@ -12,3 +12,11 @@ install:
 
 clean:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+
+unload:
+	@if [ "$(MODULE_LOADED)" != "" ]; then\
+		rmmod hid_hori;\
+	fi
+
+load: unload
+	insmod hid-hori.ko

@@ -126,16 +126,13 @@ static const __u8 *hori_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 				     unsigned int *rsize)
 {
 	switch (hdev->product) {
-
-	/* Several wheels report as this id when operating in emulation mode. */
 	case USB_DEVICE_ID_HORI_TRUCK_WHEEL:
 		if (*rsize != HORI_TCS_WHEEL_RDESC_ORIG_SIZE)
 			break;
 
 		hid_info(hdev, "fixing up HORI TCS  Wheel report descriptor\n");
-		rdesc = tcs_wheel_rdesc_fixed;
 		*rsize = sizeof(tcs_wheel_rdesc_fixed);
-		break;
+		return tcs_wheel_rdesc_fixed;
 	}
 
 	return rdesc;
