@@ -13,6 +13,28 @@ The shifter is full working now, too.
 
 This kernel driver is early alpha.
 
+## Testing
+```shell
+# Create a debug build
+make debug
+
+# Load built module. It will automatically reload
+# it if it was loaded previously
+sudo make load
+```
+
+## DKMS install
+DKMS will install module into system, and will update it every time you update your kernel. Module will persist after reboots.
+It's the preferrable way to install it on the most distros.
+
+1. Install `dkms` package from your distro package manager
+2. Clone repository to `/usr/src/hid-hori`
+3. Install the module:
+```
+sudo dkms install /usr/src/hid-hori
+```
+4. Reboot
+
 **I cannot be held responsible for any damage to the device. The use of this driver is at your own risk**
 
 ![Pedals_works](https://github.com/user-attachments/assets/7f347458-5c01-4d28-bd4c-e2b78a502ef2)

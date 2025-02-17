@@ -1,14 +1,28 @@
 #Makefile
-obj-m := hid-hori.o
+KVERSION := `uname -r`
+KDIR := /lib/modules/${KVERSION}/build
+MODULE_LOADED := $(shell lsmod | grep hid_hori)
 
-all:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+default: clean
+	$(MAKE) -C $(KDIR) M=$$PWD
+
+debug: clean
+	$(MAKE) -C $(KDIR) M=$$PWD EXTRA_CFLAGS="-g -DDEBUG"
+
+clean:
+	$(MAKE) -C $(KDIR) M=$$PWD clean
+
+install: default
+	$(MAKE) -C $(KDIR) M=$$PWD modules_install
+	depmod -A
+
+unload:
+	@if [ "$(MODULE_LOADED)" != "" ]; then\
+		rmmod hid_hori;\
+	fi
+
+load: unload
+	insmod hid-hori.ko
 
 udev-rules:
 	install -m 0644 udev/99-hori-wheels.rules /etc/udev/rules.d/
-
-install:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules_install
-
-clean:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
