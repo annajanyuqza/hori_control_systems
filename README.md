@@ -37,6 +37,6 @@ sudo dkms install /usr/src/hid-hori
 
 **I cannot be held responsible for any damage to the device. The use of this driver is at your own risk**
 
-![Pedals_works](https://github.com/user-attachments/assets/7f347458-5c01-4d28-bd4c-e2b78a502ef2)
+![Pedals_work](https://github.com/user-attachments/assets/7f347458-5c01-4d28-bd4c-e2b78a502ef2)
 
-[Intallation](https://github.com/LinuxGamesTV/hori_control_systems/wiki)
+[Installation](https://github.com/LinuxGamesTV/hori_control_systems/wiki)
