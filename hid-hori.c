@@ -203,8 +203,8 @@ static void parse_tcs_axis_report(struct input_dev *input_dev, u8 *data)
 	input_report_abs(input_dev, ABS_BRAKE, data[24]  << 8);
 
 	/* Hat is always the upper nibble of the penultimate byte of the report. This hatswitch is very tricky */
-	input_report_abs(input_dev, ABS_HAT0X, hat_to_axis[hat][2]);
-	input_report_abs(input_dev, ABS_HAT0Y, -hat_to_axis[hat][6]);
+	input_report_abs(input_dev, ABS_HAT0X, hat_to_axis[hat][0]);
+	input_report_abs(input_dev, ABS_HAT0Y, hat_to_axis[hat][1]);
 
 	input_report_abs(input_dev, ABS_MISC, data[26] << 8);
 }
